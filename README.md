@@ -1,6 +1,13 @@
-# OpenButt
+<p align="center">
+  <img src="ios/OpenButt/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="128" height="128" style="border-radius: 22%;" alt="OpenButt">
+</p>
 
-A native iOS app for controlling [Claude Code](https://docs.anthropic.com/en/docs/claude-code) remotely from your iPhone. Claude Code runs on your Linux or macOS desktop with full filesystem access — OpenButt is the mobile front-end.
+<h1 align="center">OpenButt</h1>
+
+<p align="center">
+A native iOS app for controlling <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a> remotely from your iPhone.<br>
+Claude Code runs on your Linux or macOS desktop with full filesystem access — OpenButt is the mobile front-end.
+</p>
 
 Self-hostable. No cloud services. No third-party accounts. Just SSH between your phone and your computer.
 
