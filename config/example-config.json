@@ -1,0 +1,66 @@
+{
+  // OpenButt Configuration File
+  // Copy this to ~/.openbutt/config.json and fill in your values.
+  // Run scripts/setup-server.sh to generate this automatically.
+
+  "server": {
+    // Hostname or IP address of the server
+    "host": "myserver.local",
+
+    // SSH port the iOS app connects to
+    "port": 2222,
+
+    // Unix user the iOS app authenticates as
+    "user": "yourusername",
+
+    // Path to the SSH public key authorized for the iOS app
+    "ssh_public_key": "/home/yourusername/.openbutt/ios_ed25519.pub"
+  },
+
+  "apns": {
+    // Whether APNs push notifications are enabled
+    "enabled": false,
+
+    // Path to the Apple .p8 signing key file
+    "key_path": "/home/yourusername/.openbutt/apns_key.p8",
+
+    // Your Apple Developer Team ID (10-character string)
+    "team_id": "ABCDE12345",
+
+    // The Key ID from the APNs key in App Store Connect
+    "key_id": "FGHIJ67890",
+
+    // Your app's bundle identifier
+    "bundle_id": "com.example.openbutt"
+  },
+
+  "claude": {
+    // Maximum number of conversation turns per session
+    "max_turns": 25,
+
+    // Timeout in seconds for a single Claude invocation
+    "timeout_seconds": 300
+  },
+
+  "wireguard": {
+    // Whether to require WireGuard VPN for connections
+    "required": false,
+
+    // WireGuard interface name on the server
+    "interface": "wg0",
+
+    // Subnet for WireGuard peers
+    "subnet": "10.10.0.0/24"
+  },
+
+  "security": {
+    // Restrict SSH access to specific IP ranges (empty = no restriction)
+    "allowed_ips": [],
+
+    // Maximum concurrent sessions
+    "max_sessions": 3,
+
+    // Session idle timeout in seconds (0 = no timeout)
+    "idle_timeout": 600
+  }
+}

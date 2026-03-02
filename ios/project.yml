@@ -1,0 +1,102 @@
+name: OpenButt
+options:
+  bundleIdPrefix: com.openbutt.ai
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+
+packages:
+  Citadel:
+    url: https://github.com/orlandos-nl/Citadel
+    from: "0.12.0"
+  swift-markdown-ui:
+    url: https://github.com/gonzalezreal/swift-markdown-ui
+    from: "2.4.0"
+  WireGuardKit:
+    path: Packages/WireGuardApple
+
+targets:
+  OpenButt:
+    type: application
+    platform: iOS
+    sources:
+      - OpenButt
+    configFiles:
+      Debug: Local.xcconfig
+      Release: Local.xcconfig
+    info:
+      path: OpenButt/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: OpenButt
+        LSRequiresIPhoneOS: true
+        NSMicrophoneUsageDescription: "OpenButt uses the microphone for voice input to send prompts to Claude."
+        NSSpeechRecognitionUsageDescription: "OpenButt uses speech recognition to transcribe voice input into text prompts."
+        NSLocalNetworkUsageDescription: "OpenButt connects to your server over the local network via SSH."
+        NSBonjourServices:
+          - _ssh._tcp
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.openbutt.ai
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_VERSION: "5.10"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - sdk: AppIntents.framework
+      - package: Citadel
+      - package: swift-markdown-ui
+        product: MarkdownUI
+      - target: OpenButtTunnel
+        embed: true
+    entitlements:
+      path: OpenButt/Resources/OpenButt.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.device.microphone: true
+        com.apple.developer.networking.networkextension:
+          - packet-tunnel-provider
+        com.apple.security.application-groups:
+          - group.com.openbutt.ai
+
+  OpenButtTunnel:
+    type: app-extension
+    platform: iOS
+    sources:
+      - OpenButtTunnel
+    configFiles:
+      Debug: Local.xcconfig
+      Release: Local.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.openbutt.ai.tunnel
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_VERSION: "5.10"
+        LIBRARY_SEARCH_PATHS: "$(SRCROOT)/Packages/WireGuardApple/Sources/WireGuardKitGo/out"
+    dependencies:
+      - package: WireGuardKit
+        product: WireGuardKit
+    entitlements:
+      path: OpenButtTunnel/OpenButtTunnel.entitlements
+      properties:
+        com.apple.developer.networking.networkextension:
+          - packet-tunnel-provider
+        com.apple.security.application-groups:
+          - group.com.openbutt.ai
+    info:
+      path: OpenButtTunnel/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.networkextension.packet-tunnel
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).PacketTunnelProvider
+        CFBundlePackageType: "XPC!"
+        CFBundleDisplayName: OpenButtTunnel

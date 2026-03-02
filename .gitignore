@@ -1,0 +1,47 @@
+# Xcode
+*.xcodeproj/
+*.xcworkspace/xcuserdata/
+DerivedData/
+*.dSYM.zip
+*.dSYM
+*.ipa
+*.xcarchive
+
+# SPM
+.build/
+.swiftpm/
+ios/OpenButt.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Local config (signing, personal settings)
+ios/Local.xcconfig
+
+# Secrets
+*.p8
+*.pem
+device_token
+config.json
+!config/example-config.json
+
+# Build artifacts
+ios/build/
+
+# WireGuard local builds (users clone separately)
+wireguard-apple-local/
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# Internal dev docs (not for public)
+docs/notes/implementation-status.md
+docs/features/project-roadmap.md
+docs/remote/
+
+# Claude
+.claude/
