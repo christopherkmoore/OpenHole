@@ -61,7 +61,7 @@ cd OpenHole
 bash scripts/setup-server.sh
 ```
 
-The setup script checks prerequisites, generates an SSH keypair for your phone, and configures `~/.openbutt/` on the server.
+The setup script checks prerequisites, generates an SSH keypair for your phone, and configures `~/.openhole/` on the server.
 
 ### 2. Build the iOS app
 
@@ -83,7 +83,7 @@ echo "DEVELOPMENT_TEAM = YOUR_TEAM_ID" > Local.xcconfig
 xcodegen generate
 
 # Open in Xcode
-open OpenButt.xcodeproj
+open OpenHole.xcodeproj
 ```
 
 > **Finding your Team ID:** Open Xcode > Settings > Accounts > select your Apple ID > look for the Team ID under your team name. For personal accounts, it's a 10-character alphanumeric string.
@@ -118,7 +118,7 @@ This sets up a WireGuard server on your desktop and generates a peer config for 
 OpenHole/
 ├── ios/
 │   ├── project.yml              # XcodeGen spec
-│   ├── OpenButt/
+│   ├── OpenHole/
 │   │   ├── App/                 # Entry point, settings, root views
 │   │   ├── Claude/              # Stream-JSON parser, session state machine, OAuth
 │   │   ├── Intents/             # Siri / Shortcuts integration
@@ -129,7 +129,7 @@ OpenHole/
 │   │       ├── Files/           # Remote file browser
 │   │       ├── Diff/            # Diff viewer for Edit/Write tools
 │   │       └── Settings/        # Configuration UI
-│   └── OpenButtTunnel/          # WireGuard network extension
+│   └── OpenHoleTunnel/          # WireGuard network extension
 ├── scripts/
 │   ├── setup-server.sh          # Interactive server setup
 │   ├── setup-wireguard.sh       # WireGuard peer config generator
@@ -170,16 +170,16 @@ Tap the microphone button to speak your prompt. Uses iOS Speech Recognition to t
 
 ### Bundle ID
 
-The default bundle ID is `com.openbutt.ai`. If you need to change it (e.g., for multiple installations), update these files:
+The default bundle ID is `com.openhole.ai`. If you need to change it (e.g., for multiple installations), update these files:
 
 - `ios/project.yml` — `bundleIdPrefix` and `PRODUCT_BUNDLE_IDENTIFIER` (both targets)
 - `ios/project.yml` — `com.apple.security.application-groups` (both targets)
-- `ios/OpenButt/Resources/OpenButt.entitlements`
-- `ios/OpenButtTunnel/OpenButtTunnel.entitlements`
-- `ios/OpenButt/App/AppSettings.swift` — `privateKeyTag` and `keychainKey`
-- `ios/OpenButt/SSH/WireGuardManager.swift` — static constants
-- `ios/OpenButt/Services/Logger.swift` — subsystem identifiers
-- `ios/OpenButtTunnel/PacketTunnelProvider.swift` — keychain access group
+- `ios/OpenHole/Resources/OpenHole.entitlements`
+- `ios/OpenHoleTunnel/OpenHoleTunnel.entitlements`
+- `ios/OpenHole/App/AppSettings.swift` — `privateKeyTag` and `keychainKey`
+- `ios/OpenHole/SSH/WireGuardManager.swift` — static constants
+- `ios/OpenHole/Services/Logger.swift` — subsystem identifiers
+- `ios/OpenHoleTunnel/PacketTunnelProvider.swift` — keychain access group
 
 ### Claude Model
 
@@ -195,7 +195,7 @@ Controls how Claude handles tool permissions. Options:
 
 ## Server-Side Files
 
-The setup script creates `~/.openbutt/` on your server:
+The setup script creates `~/.openhole/` on your server:
 
 | File | Purpose |
 |------|---------|
