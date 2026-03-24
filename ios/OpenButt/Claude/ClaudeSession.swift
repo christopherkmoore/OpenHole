@@ -60,11 +60,8 @@ class ClaudeSession: ObservableObject {
             return
         }
 
-        do {
-            try await OAuthManager.ensureValidToken(ssh: ssh)
-        } catch {
-            buttLog.error("[session] OAuth token refresh failed: \(error)")
-            state = .error("OAuth token refresh failed: \(error.localizedDescription)")
+        guard !settings.claudeToken.isEmpty else {
+            state = .error("No Claude setup token configured. Add one in Settings.")
             return
         }
 
@@ -99,7 +96,7 @@ class ClaudeSession: ObservableObject {
         do {
             let proc = setupProcess(ssh: ssh)
             process = proc
-            try await proc.start(command: command, workingDirectory: settings.workingDirectory)
+            try await proc.start(command: command, workingDirectory: settings.workingDirectory, environment: buildEnvironment(settings: settings))
             buttLog.info("[session] createNewSession: process started, beginning polling")
             proc.startPolling()
             state = .ready
@@ -130,7 +127,7 @@ class ClaudeSession: ObservableObject {
         do {
             let proc = setupProcess(ssh: ssh)
             process = proc
-            try await proc.start(command: command, workingDirectory: settings.workingDirectory)
+            try await proc.start(command: command, workingDirectory: settings.workingDirectory, environment: buildEnvironment(settings: settings))
             buttLog.info("[session] resumeExistingSession: process started, beginning polling")
             proc.startPolling()
             settings.activeSessionId = id
@@ -157,7 +154,7 @@ class ClaudeSession: ObservableObject {
             do {
                 let proc = setupProcess(ssh: ssh)
                 process = proc
-                try await proc.start(command: command, workingDirectory: s.workingDirectory)
+                try await proc.start(command: command, workingDirectory: s.workingDirectory, environment: buildEnvironment(settings: s))
                 proc.startPolling()
             } catch {
                 buttLog.error("[session] sendMessage: failed to re-launch process: \(error)")
@@ -223,7 +220,7 @@ class ClaudeSession: ObservableObject {
         do {
             let proc = setupProcess(ssh: ssh)
             process = proc
-            try await proc.start(command: command, workingDirectory: settings.workingDirectory)
+            try await proc.start(command: command, workingDirectory: settings.workingDirectory, environment: buildEnvironment(settings: settings))
             proc.startPolling()
 
             // Send the retry message immediately — system event will come as part of the response
@@ -279,7 +276,7 @@ class ClaudeSession: ObservableObject {
             do {
                 let proc = setupProcess(ssh: ssh)
                 process = proc
-                try await proc.start(command: command, workingDirectory: s.workingDirectory)
+                try await proc.start(command: command, workingDirectory: s.workingDirectory, environment: buildEnvironment(settings: s))
                 proc.startPolling()
             } catch {
                 state = .error(error.localizedDescription)
@@ -381,10 +378,19 @@ class ClaudeSession: ObservableObject {
         return cmd
     }
 
+    private func buildEnvironment(settings: AppSettings) -> [String: String] {
+        var env: [String: String] = [:]
+        if !settings.claudeToken.isEmpty {
+            env["CLAUDE_CODE_OAUTH_TOKEN"] = settings.claudeToken
+        }
+        return env
+    }
+
     private func isAuthError(_ message: String) -> Bool {
         let lower = message.lowercased()
         return lower.contains("401") || lower.contains("oauth token") ||
-               lower.contains("expired") || lower.contains("unauthorized")
+               lower.contains("expired") || lower.contains("unauthorized") ||
+               lower.contains("invalid bearer token")
     }
 
     private func shellEscape(_ s: String) -> String {
@@ -645,34 +651,33 @@ class ClaudeSession: ObservableObject {
             lastResult = res
             endStreaming()
 
-            if res.isError, isAuthError(res.result) {
-                buttLog.info("[session] auth error detected, terminating process and re-reading server credentials")
-                Task {
-                    do {
-                        await process?.terminate()
-                        process = nil
+            if res.isError {
+                let errorText = res.result ?? res.errors?.joined(separator: "; ") ?? ""
 
-                        guard let ssh = sshManager else {
-                            state = .error("SSH not connected")
-                            return
-                        }
-
-                        // Re-read credentials from server (kept fresh by Mac's launchd sync)
-                        let creds = try await OAuthManager.readCredentials(ssh: ssh)
-                        if OAuthManager.isExpired(creds) {
-                            // Sync hasn't run yet — try refreshing as a last resort
-                            buttLog.info("[session] server token still expired, attempting refresh")
-                            try await OAuthManager.forceRefresh(ssh: ssh)
-                        }
-
-                        if let sid = sessionId, let s = settings {
-                            await resumeExistingSession(id: sid, settings: s)
-                        }
-                    } catch {
-                        state = .error("Authentication expired. Ensure your Mac is syncing credentials.")
-                    }
+                if isAuthError(errorText) {
+                    buttLog.error("[session] auth error — setup token may be invalid or expired")
+                    let p = process
+                    process = nil
+                    Task { await p?.terminate() }
+                    state = .error("Authentication failed. Your setup token may be expired. Generate a new one with 'claude setup-token' on the server.")
+                    return
                 }
-                return
+
+                if errorText.contains("No conversation found") {
+                    buttLog.info("[session] stale session ID, starting fresh")
+                    let p = process
+                    process = nil
+                    Task {
+                        await p?.terminate()
+                        if let s = self.settings {
+                            s.activeSessionId = nil
+                            self.sessionId = nil
+                            self.messages = []
+                            await self.createNewSession(settings: s)
+                        }
+                    }
+                    return
+                }
             }
 
             if let denials = res.permissionDenials, !denials.isEmpty {

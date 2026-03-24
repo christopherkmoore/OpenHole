@@ -14,6 +14,7 @@ class ClaudeProcess: @unchecked Sendable {
 
     private var inFile: String { "/tmp/ob-\(processId).in" }
     private var outFile: String { "/tmp/ob-\(processId).out" }
+    private var envFile: String { "/tmp/ob-\(processId).env" }
 
     init(ssh: SSHConnectionManager) {
         self.processId = UUID().uuidString
@@ -24,9 +25,21 @@ class ClaudeProcess: @unchecked Sendable {
     /// - Parameters:
     ///   - command: The claude CLI command (no cd prefix)
     ///   - workingDirectory: Directory to cd into before running (default "~")
-    func start(command: String, workingDirectory: String = "~") async throws {
+    ///   - environment: Environment variables to set for the process
+    func start(command: String, workingDirectory: String = "~", environment: [String: String] = [:]) async throws {
         buttLog.info("[process] creating files: \(inFile), \(outFile)")
         try await ssh.executeCommand("touch \(inFile) && : > \(outFile)")
+
+        // Write env vars to a file to avoid long-line SSH transport issues
+        if !environment.isEmpty {
+            var envContent = ""
+            for (key, value) in environment {
+                let escaped = value.replacingOccurrences(of: "'", with: "'\\''")
+                envContent += "export \(key)='\(escaped)'\n"
+            }
+            let envEscaped = envContent.replacingOccurrences(of: "'", with: "'\\''")
+            try await ssh.executeCommand("printf '%s' '\(envEscaped)' > \(envFile) && chmod 600 \(envFile)")
+        }
 
         let escapedCmd = command.replacingOccurrences(of: "'", with: "'\\''")
 
@@ -41,7 +54,8 @@ class ClaudeProcess: @unchecked Sendable {
             cdPart = "cd \"\(escapedDir)\""
         }
 
-        let launchCmd = "nohup sh -c '\(cdPart) && tail -f \(inFile) | \(escapedCmd) > \(outFile) 2>&1' </dev/null >/dev/null 2>&1 & echo $!"
+        let sourcePart = environment.isEmpty ? "" : ". \(envFile) && "
+        let launchCmd = "nohup sh -c '\(sourcePart)\(cdPart) && tail -f \(inFile) | \(escapedCmd) > \(outFile) 2>&1' </dev/null >/dev/null 2>&1 & echo $!"
         buttLog.debug("[process] launch command: \(launchCmd)")
         let output = try await ssh.executeCommand(launchCmd)
         let pidStr = output.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -144,7 +158,7 @@ class ClaudeProcess: @unchecked Sendable {
                 // Kill the process tree: children first, then parent
                 try await ssh.executeCommand("pkill -P \(pid) 2>/dev/null; kill \(pid) 2>/dev/null; true")
             }
-            try await ssh.executeCommand("rm -f \(inFile) \(outFile)")
+            try await ssh.executeCommand("rm -f \(inFile) \(outFile) \(envFile)")
         } catch {
             buttLog.debug("Cleanup error (expected if SSH disconnected): \(error)")
         }

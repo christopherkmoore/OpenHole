@@ -4,15 +4,18 @@ import Security
 enum KeychainHelper {
     @discardableResult
     static func save(key: String, data: Data, accessGroup: String? = nil) -> Bool {
-        var query: [String: Any] = [
+        // Delete with minimal query to ensure old item is removed
+        var deleteQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            kSecAttrAccount as String: key
         ]
-        if let group = accessGroup { query[kSecAttrAccessGroup as String] = group }
-        SecItemDelete(query as CFDictionary)
-        let status = SecItemAdd(query as CFDictionary, nil)
+        if let group = accessGroup { deleteQuery[kSecAttrAccessGroup as String] = group }
+        SecItemDelete(deleteQuery as CFDictionary)
+
+        var addQuery = deleteQuery
+        addQuery[kSecValueData as String] = data
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        let status = SecItemAdd(addQuery as CFDictionary, nil)
         return status == errSecSuccess
     }
 

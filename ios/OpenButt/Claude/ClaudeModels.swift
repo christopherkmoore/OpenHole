@@ -88,16 +88,17 @@ struct ResultEvent: Codable {
     let durationMs: Int
     let durationApiMs: Int
     let numTurns: Int
-    let result: String
+    let result: String?
     let stopReason: String?
     let sessionId: String
     let totalCostUsd: Double
     let usage: Usage?
     let uuid: String
     let permissionDenials: [PermissionDenial]?
+    let errors: [String]?
 
     enum CodingKeys: String, CodingKey {
-        case type, subtype, result, usage, uuid
+        case type, subtype, result, usage, uuid, errors
         case isError = "is_error"
         case durationMs = "duration_ms"
         case durationApiMs = "duration_api_ms"

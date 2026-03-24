@@ -14,6 +14,13 @@ class AppSettings: ObservableObject {
     @Published var activeSessionId: String? { didSet { save() } }
     @Published var isConfigured: Bool { didSet { save() } }
     @Published var sessionTitles: [String: String] { didSet { save() } }
+    @Published var claudeToken: String {
+        didSet {
+            let trimmed = claudeToken.trimmingCharacters(in: .whitespacesAndNewlines)
+            if claudeToken != trimmed { claudeToken = trimmed; return }
+            save()
+        }
+    }
 
     var privateKeyTag: String { "com.openbutt.ai.ssh.\(sshKeyName)" }
 
@@ -40,12 +47,13 @@ class AppSettings: ObservableObject {
         self.isConfigured = (saved?["is_configured"] ?? "") == "true"
         let titlesJson = saved?["session_titles"] ?? "{}"
         self.sessionTitles = (try? JSONDecoder().decode([String: String].self, from: Data(titlesJson.utf8))) ?? [:]
+        self.claudeToken = saved?["claude_token"] ?? ""
 
         if needsMigration { save() }
     }
 
     func validate() -> Bool {
-        !sshHost.isEmpty && !sshUser.isEmpty && sshPort > 0
+        !sshHost.isEmpty && !sshUser.isEmpty && sshPort > 0 && !claudeToken.isEmpty
     }
 
     private func save() {
@@ -62,7 +70,8 @@ class AppSettings: ObservableObject {
             "approved_tools": approvedTools.sorted().joined(separator: ","),
             "active_session_id": activeSessionId ?? "",
             "is_configured": isConfigured ? "true" : "false",
-            "session_titles": (try? String(data: JSONEncoder().encode(sessionTitles), encoding: .utf8)) ?? "{}"
+            "session_titles": (try? String(data: JSONEncoder().encode(sessionTitles), encoding: .utf8)) ?? "{}",
+            "claude_token": claudeToken
         ]
         guard let data = try? JSONEncoder().encode(dict) else { return }
         KeychainHelper.save(key: Self.keychainKey, data: data)
