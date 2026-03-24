@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png" alt="OpenButt" width="800">
+  <img src="docs/banner.png" alt="OpenHole" width="800">
 </p>
 
 <p align="center">
@@ -56,7 +56,7 @@ OpenButt spawns a persistent Claude Code process on your server using `tail -f` 
 ### 1. Set up the server
 
 ```bash
-git clone https://github.com/christopherkmoore/OpenButt.git
+git clone https://github.com/christopherkmoore/OpenHole.git
 cd OpenButt
 bash scripts/setup-server.sh
 ```

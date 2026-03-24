@@ -112,6 +112,21 @@ struct SettingsView: View {
                     TextField("Working Directory", text: $settings.workingDirectory)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+
+                    TextField("Setup Token", text: $settings.claudeToken)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .font(.system(.body, design: .monospaced))
+
+                    if settings.claudeToken.isEmpty {
+                        Text("No token set. Run 'claude setup-token' on your server to generate one.")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    } else {
+                        Text("Token set (\(settings.claudeToken.prefix(12))..., \(settings.claudeToken.count) chars)")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    }
                 }
 
                 Section("Approved Tools") {
@@ -214,7 +229,7 @@ struct SettingsView: View {
                         Text("0.1.0")
                             .foregroundStyle(.secondary)
                     }
-                    Link("GitHub", destination: URL(string: "https://github.com/christopherkmoore/OpenButt")!)
+                    Link("GitHub", destination: URL(string: "https://github.com/christopherkmoore/OpenHole")!)
                 }
             }
             .navigationTitle(initialSetup ? "Setup" : "Settings")
@@ -272,7 +287,29 @@ struct SettingsView: View {
             do {
                 let whoami = try await connection.executeCommand("whoami")
                 let claudeVersion = try await connection.executeCommand("claude --version 2>/dev/null || echo 'not found'")
-                testResult = "OK: \(whoami.trimmingCharacters(in: .whitespacesAndNewlines))@\(connection.connectedHost), Claude \(claudeVersion.trimmingCharacters(in: .whitespacesAndNewlines))"
+                var status = "OK: \(whoami.trimmingCharacters(in: .whitespacesAndNewlines))@\(connection.connectedHost), Claude \(claudeVersion.trimmingCharacters(in: .whitespacesAndNewlines))"
+
+                if !settings.claudeToken.isEmpty {
+                    // Write token to a temp env file to avoid SSH line-wrapping issues
+                    let envFile = "/tmp/ob-test-\(UUID().uuidString.prefix(8)).env"
+                    let tokenEscaped = settings.claudeToken.replacingOccurrences(of: "'", with: "'\\''")
+                    try await connection.executeCommand(
+                        "printf '%s' 'export CLAUDE_CODE_OAUTH_TOKEN=\\''\\(tokenEscaped)\\''' > \(envFile) && chmod 600 \(envFile)"
+                    )
+                    let tokenTest = try await connection.executeCommand(
+                        ". \(envFile) && claude -p 'respond with OK' --output-format text --max-turns 1 2>&1 | head -5; rm -f \(envFile)"
+                    )
+                    let trimmed = tokenTest.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmed.lowercased().contains("ok") {
+                        status += "\nToken: valid"
+                    } else {
+                        status += "\nToken: invalid — \(String(trimmed.prefix(100)))"
+                    }
+                } else {
+                    status += "\nToken: not set"
+                }
+
+                testResult = status
             } catch {
                 testResult = "SSH OK but command failed: \(error.localizedDescription)"
             }
