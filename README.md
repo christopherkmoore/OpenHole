@@ -8,7 +8,7 @@
 
 ---
 
-A native iOS app for controlling [Claude Code](https://docs.anthropic.com/en/docs/claude-code) remotely from your iPhone. Claude Code runs on your Linux or macOS desktop with full filesystem access — OpenButt is the mobile front-end.
+A native iOS app for controlling [Claude Code](https://docs.anthropic.com/en/docs/claude-code) remotely from your iPhone. Claude Code runs on your Linux or macOS desktop with full filesystem access — OpenHole is the mobile front-end.
 
 ## What It Does
 
@@ -34,7 +34,7 @@ A native iOS app for controlling [Claude Code](https://docs.anthropic.com/en/doc
 └─────────────┘                              └───────────────────┘
 ```
 
-OpenButt spawns a persistent Claude Code process on your server using `tail -f` as a pipe. Messages are appended to an input file, responses are polled from an output file. The process stays alive across messages — no re-spawning per prompt.
+OpenHole spawns a persistent Claude Code process on your server using `tail -f` as a pipe. Messages are appended to an input file, responses are polled from an output file. The process stays alive across messages — no re-spawning per prompt.
 
 ## Requirements
 
@@ -57,7 +57,7 @@ OpenButt spawns a persistent Claude Code process on your server using `tail -f` 
 
 ```bash
 git clone https://github.com/christopherkmoore/OpenHole.git
-cd OpenButt
+cd OpenHole
 bash scripts/setup-server.sh
 ```
 
@@ -104,7 +104,7 @@ There is no server process to start — the app connects via SSH and spawns Clau
 
 ### WireGuard (optional, for remote access)
 
-If you want to use OpenButt from outside your home network:
+If you want to use OpenHole from outside your home network:
 
 ```bash
 bash server/setup.sh
@@ -115,7 +115,7 @@ This sets up a WireGuard server on your desktop and generates a peer config for 
 ## Project Structure
 
 ```
-OpenButt/
+OpenHole/
 ├── ios/
 │   ├── project.yml              # XcodeGen spec
 │   ├── OpenButt/
