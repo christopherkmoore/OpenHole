@@ -10,7 +10,7 @@ DerivedData/
 # SPM
 .build/
 .swiftpm/
-ios/OpenButt.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+ios/OpenHole.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 
 # macOS
 .DS_Store

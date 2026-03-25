@@ -1,6 +1,6 @@
-# OpenButt Server Setup
+# OpenHole Server Setup
 
-Sets up a WireGuard VPN on your server so the OpenButt iOS app can connect remotely from anywhere.
+Sets up a WireGuard VPN on your server so the OpenHole iOS app can connect remotely from anywhere.
 
 ## Prerequisites
 
@@ -42,8 +42,8 @@ bash setup.sh my-ipad
 ```
 
 Peer configs are saved to:
-- `~/.openbutt/peer.conf` — always the latest (what the iOS app fetches)
-- `~/.openbutt/peers/<name>.conf` — archive of all generated peers
+- `~/.openhole/peer.conf` — always the latest (what the iOS app fetches)
+- `~/.openhole/peers/<name>.conf` — archive of all generated peers
 
 ## After Running
 
@@ -58,7 +58,7 @@ If UPnP didn't work (the script will tell you), manually forward on your router:
 | Internal IP | Your server's LAN IP (e.g. `192.168.1.100`) |
 | Internal Port | **51820** |
 
-### 2. Configure OpenButt app settings
+### 2. Configure OpenHole app settings
 
 Open the app → Settings and fill in:
 
@@ -76,7 +76,7 @@ Open the app → Settings and fill in:
 
 Open the app → Settings → **Import config from server**
 
-This is a one-time fetch. The app downloads `~/.openbutt/peer.conf` from your server over SSH and saves the WireGuard config locally on your phone. After this, you don't need local access again — the config lives on the device.
+This is a one-time fetch. The app downloads `~/.openhole/peer.conf` from your server over SSH and saves the WireGuard config locally on your phone. After this, you don't need local access again — the config lives on the device.
 
 Alternatively, scan the QR code that `setup.sh` printed with the standalone [WireGuard iOS app](https://apps.apple.com/app/wireguard/id1441195209).
 
@@ -165,7 +165,7 @@ Some routers have a "NAT Filtering" setting (often under WAN Setup). If set to "
 - Make sure "Remote Host (WireGuard)" is set to `10.8.0.1` in the app settings. This is the server's address inside the WireGuard tunnel — without it, the app doesn't know where to SSH when using WireGuard.
 
 **Config has wrong IP / connection times out?**
-- The script detects your IP via the physical interface. If it got the wrong one, edit `~/.openbutt/peer.conf` and fix the `Endpoint` line
+- The script detects your IP via the physical interface. If it got the wrong one, edit `~/.openhole/peer.conf` and fix the `Endpoint` line
 
 **Multiple VPN tunnels interfering?**
 - Check `ip rule list` — you should see a `fwmark 0x4f42` rule at priority 47

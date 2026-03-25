@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# OpenButt APNs Push Notification Sender
+# OpenHole APNs Push Notification Sender
 # Sends push notifications to the iOS app via Apple Push Notification service.
 # Uses JWT (ES256) authentication with a .p8 key file.
 #
@@ -26,7 +26,7 @@ ok()    { printf "${GREEN}[OK]${NC}    %s\n" "$*" >&2; }
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-CONFIG_DIR="$HOME/.openbutt"
+CONFIG_DIR="$HOME/.openhole"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 DEVICE_TOKEN_FILE="$CONFIG_DIR/device_token"
 
@@ -115,11 +115,11 @@ JWT="${JWT_HEADER_CLAIMS}.${JWT_SIGNATURE}"
 # ---------------------------------------------------------------------------
 # Escape the message for JSON
 if command -v jq &>/dev/null; then
-    PAYLOAD=$(jq -nc --arg msg "$MESSAGE" '{aps: {alert: {title: "OpenButt", body: $msg}, sound: "default", "content-available": 1}}')
+    PAYLOAD=$(jq -nc --arg msg "$MESSAGE" '{aps: {alert: {title: "OpenHole", body: $msg}, sound: "default", "content-available": 1}}')
 else
     # Manual escaping for JSON (handles quotes and backslashes)
     ESCAPED_MSG=$(printf '%s' "$MESSAGE" | sed 's/\\/\\\\/g; s/"/\\"/g')
-    PAYLOAD="{\"aps\":{\"alert\":{\"title\":\"OpenButt\",\"body\":\"${ESCAPED_MSG}\"},\"sound\":\"default\",\"content-available\":1}}"
+    PAYLOAD="{\"aps\":{\"alert\":{\"title\":\"OpenHole\",\"body\":\"${ESCAPED_MSG}\"},\"sound\":\"default\",\"content-available\":1}}"
 fi
 
 # ---------------------------------------------------------------------------

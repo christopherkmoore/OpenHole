@@ -27,7 +27,7 @@ class ClaudeProcess: @unchecked Sendable {
     ///   - workingDirectory: Directory to cd into before running (default "~")
     ///   - environment: Environment variables to set for the process
     func start(command: String, workingDirectory: String = "~", environment: [String: String] = [:]) async throws {
-        buttLog.info("[process] creating files: \(inFile), \(outFile)")
+        holeLog.info("[process] creating files: \(inFile), \(outFile)")
         try await ssh.executeCommand("touch \(inFile) && : > \(outFile)")
 
         // Write env vars to a file to avoid long-line SSH transport issues
@@ -56,31 +56,31 @@ class ClaudeProcess: @unchecked Sendable {
 
         let sourcePart = environment.isEmpty ? "" : ". \(envFile) && "
         let launchCmd = "nohup sh -c '\(sourcePart)\(cdPart) && tail -f \(inFile) | \(escapedCmd) > \(outFile) 2>&1' </dev/null >/dev/null 2>&1 & echo $!"
-        buttLog.debug("[process] launch command: \(launchCmd)")
+        holeLog.debug("[process] launch command: \(launchCmd)")
         let output = try await ssh.executeCommand(launchCmd)
         let pidStr = output.trimmingCharacters(in: .whitespacesAndNewlines)
         pid = Int(pidStr)
-        buttLog.info("[process] started \(processId) with PID \(pidStr)")
+        holeLog.info("[process] started \(processId) with PID \(pidStr)")
     }
 
     /// Append a JSON message to the input file
     func sendMessage(_ json: String) async throws {
-        buttLog.debug("[process] sendMessage: writing \(json.count) chars to \(inFile)")
+        holeLog.debug("[process] sendMessage: writing \(json.count) chars to \(inFile)")
         let escaped = json.replacingOccurrences(of: "'", with: "'\\''")
         try await ssh.executeCommand(
             "printf '%s\\n' '\(escaped)' >> \(inFile)"
         )
-        buttLog.debug("[process] sendMessage: write complete")
+        holeLog.debug("[process] sendMessage: write complete")
     }
 
     func pausePolling() {
         _isPaused.withLock { $0 = true }
-        buttLog.info("[poll] paused (app backgrounded)")
+        holeLog.info("[poll] paused (app backgrounded)")
     }
 
     func resumePolling() {
         _isPaused.withLock { $0 = false }
-        buttLog.info("[poll] resumed")
+        holeLog.info("[poll] resumed")
     }
 
     /// Start polling the output file for new lines
@@ -109,17 +109,17 @@ class ClaudeProcess: @unchecked Sendable {
 
                     guard currentSize > self.lastServerSize else { continue }
 
-                    buttLog.debug("[poll] file grew: \(self.lastServerSize) → \(currentSize) bytes")
+                    holeLog.debug("[poll] file grew: \(self.lastServerSize) → \(currentSize) bytes")
 
                     let output = try await self.ssh.executeCommand(
                         "tail -c +\(self.lastServerSize + 1) \(self.outFile) 2>/dev/null"
                     )
                     guard !output.isEmpty else {
-                        buttLog.debug("[poll] tail returned empty despite size growth")
+                        holeLog.debug("[poll] tail returned empty despite size growth")
                         continue
                     }
 
-                    buttLog.debug("[poll] read \(output.count) chars of new output")
+                    holeLog.debug("[poll] read \(output.count) chars of new output")
                     self.lastServerSize = currentSize
                     self.lineBuffer += output
 
@@ -132,7 +132,7 @@ class ClaudeProcess: @unchecked Sendable {
                     }
 
                     if !jsonLines.isEmpty {
-                        buttLog.info("[poll] delivering \(jsonLines.count) JSON lines to handler")
+                        holeLog.info("[poll] delivering \(jsonLines.count) JSON lines to handler")
                         self.onLines?(jsonLines)
                     }
                 } catch {
@@ -160,9 +160,9 @@ class ClaudeProcess: @unchecked Sendable {
             }
             try await ssh.executeCommand("rm -f \(inFile) \(outFile) \(envFile)")
         } catch {
-            buttLog.debug("Cleanup error (expected if SSH disconnected): \(error)")
+            holeLog.debug("Cleanup error (expected if SSH disconnected): \(error)")
         }
-        buttLog.info("Terminated process \(processId)")
+        holeLog.info("Terminated process \(processId)")
     }
 
     deinit {

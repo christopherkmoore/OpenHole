@@ -24,7 +24,7 @@ class PushNotificationService: ObservableObject {
     /// Send the device token to the remote server via SSH
     func syncTokenToServer(connection: SSHConnectionManager, token: String) async {
         do {
-            _ = try await connection.executeCommand("mkdir -p ~/.openbutt && echo '\(token)' > ~/.openbutt/device_token")
+            _ = try await connection.executeCommand("mkdir -p ~/.openhole && echo '\(token)' > ~/.openhole/device_token")
         } catch {
             print("Failed to sync device token: \(error)")
         }

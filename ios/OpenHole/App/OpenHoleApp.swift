@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct OpenButtApp: App {
+struct OpenHoleApp: App {
     @StateObject private var wireGuard = WireGuardManager()
     @StateObject private var appSettings = AppSettings()
     @StateObject private var claudeSession = ClaudeSession()
@@ -14,7 +14,7 @@ struct OpenButtApp: App {
         _appSettings = StateObject(wrappedValue: AppSettings())
         _claudeSession = StateObject(wrappedValue: ClaudeSession())
         connectionManager = conn
-        OpenButtShortcuts.updateAppShortcutParameters()
+        OpenHoleShortcuts.updateAppShortcutParameters()
     }
 
     var body: some Scene {

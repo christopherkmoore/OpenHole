@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# OpenButt Server Setup Script
-# Interactive setup for the OpenButt server environment.
+# OpenHole Server Setup Script
+# Interactive setup for the OpenHole server environment.
 # Creates config directory, manages SSH keys, optionally configures APNs,
 # and verifies the Claude CLI is available and authenticated.
 
@@ -107,7 +107,7 @@ fi
 # ---------------------------------------------------------------------------
 header "Setting up config directory"
 
-CONFIG_DIR="$HOME/.openbutt"
+CONFIG_DIR="$HOME/.openhole"
 CONFIG_FILE="$CONFIG_DIR/config.json"
 
 mkdir -p "$CONFIG_DIR"
@@ -149,7 +149,7 @@ if $GENERATE_KEY; then
         success "Imported public key"
     else
         info "Generating Ed25519 keypair for iOS app..."
-        ssh-keygen -t ed25519 -f "$SSH_KEY_PATH" -N "" -C "openbutt-ios@$(hostname)"
+        ssh-keygen -t ed25519 -f "$SSH_KEY_PATH" -N "" -C "openhole-ios@$(hostname)"
         chmod 600 "$SSH_KEY_PATH"
         chmod 644 "$SSH_KEY_PATH.pub"
         success "Generated keypair at $SSH_KEY_PATH"
@@ -279,7 +279,7 @@ else
             warn "Authentication may not have completed. You can retry later."
         fi
     else
-        warn "Skipping authentication. Run 'claude auth login' before using OpenButt."
+        warn "Skipping authentication. Run 'claude auth login' before using OpenHole."
     fi
 fi
 
@@ -355,7 +355,7 @@ success "Configuration written to $CONFIG_FILE"
 # ---------------------------------------------------------------------------
 header "Setup Complete"
 
-printf "${GREEN}${BOLD}OpenButt server is configured!${NC}\n\n"
+printf "${GREEN}${BOLD}OpenHole server is configured!${NC}\n\n"
 printf "  Config directory:  ${CYAN}%s${NC}\n" "$CONFIG_DIR"
 printf "  Config file:       ${CYAN}%s${NC}\n" "$CONFIG_FILE"
 printf "  SSH public key:    ${CYAN}%s${NC}\n" "$SSH_KEY_PATH.pub"

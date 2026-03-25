@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# OpenButt Session Cleanup Setup
+# OpenHole Session Cleanup Setup
 # Installs a cron job that kills orphaned Claude processes left behind when
 # the iOS app disconnects without calling terminate() (force-close, SSH drop,
 # backgrounding, etc.).
@@ -21,7 +21,7 @@ ok()   { echo -e "${GREEN}[ok]${NC} $*"; }
 info() { echo -e "${BLUE}-->${NC} $*"; }
 warn() { echo -e "${YELLOW}[!]${NC} $*"; }
 
-CLEANUP_SCRIPT="$HOME/.openbutt/cleanup-sessions.sh"
+CLEANUP_SCRIPT="$HOME/.openhole/cleanup-sessions.sh"
 CRON_INTERVAL="0 4"
 
 # ─── Uninstall ────────────────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ if [[ "${1:-}" == "--uninstall" ]]; then
 fi
 
 echo ""
-echo "  OpenButt Session Cleanup"
+echo "  OpenHole Session Cleanup"
 echo "  ────────────────────────"
 echo ""
 
@@ -43,11 +43,11 @@ mkdir -p "$(dirname "$CLEANUP_SCRIPT")"
 
 cat > "$CLEANUP_SCRIPT" << 'CLEANUP'
 #!/usr/bin/env bash
-# Kills orphaned OpenButt Claude sessions whose input files are stale.
+# Kills orphaned OpenHole Claude sessions whose input files are stale.
 # Intended to run via cron every 5 minutes.
 
 STALE_MINUTES=10
-LOGFILE="$HOME/.openbutt/cleanup.log"
+LOGFILE="$HOME/.openhole/cleanup.log"
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$LOGFILE"; }
 
@@ -129,6 +129,6 @@ echo "  Status:"
 echo "    Orphaned session files: $orphan_count"
 echo "    Claude processes:       $claude_count"
 echo ""
-echo "  Log: $HOME/.openbutt/cleanup.log"
+echo "  Log: $HOME/.openhole/cleanup.log"
 echo "  Uninstall: bash $(realpath "$0") --uninstall"
 echo ""

@@ -1,6 +1,6 @@
-name: OpenButt
+name: OpenHole
 options:
-  bundleIdPrefix: com.openbutt.ai
+  bundleIdPrefix: com.openhole.ai
   deploymentTarget:
     iOS: "17.0"
   xcodeVersion: "16.0"
@@ -17,22 +17,22 @@ packages:
     path: Packages/WireGuardApple
 
 targets:
-  OpenButt:
+  OpenHole:
     type: application
     platform: iOS
     sources:
-      - OpenButt
+      - OpenHole
     configFiles:
       Debug: Local.xcconfig
       Release: Local.xcconfig
     info:
-      path: OpenButt/Resources/Info.plist
+      path: OpenHole/Resources/Info.plist
       properties:
-        CFBundleDisplayName: OpenButt
+        CFBundleDisplayName: OpenHole
         LSRequiresIPhoneOS: true
-        NSMicrophoneUsageDescription: "OpenButt uses the microphone for voice input to send prompts to Claude."
-        NSSpeechRecognitionUsageDescription: "OpenButt uses speech recognition to transcribe voice input into text prompts."
-        NSLocalNetworkUsageDescription: "OpenButt connects to your server over the local network via SSH."
+        NSMicrophoneUsageDescription: "OpenHole uses the microphone for voice input to send prompts to Claude."
+        NSSpeechRecognitionUsageDescription: "OpenHole uses speech recognition to transcribe voice input into text prompts."
+        NSLocalNetworkUsageDescription: "OpenHole connects to your server over the local network via SSH."
         NSBonjourServices:
           - _ssh._tcp
         UILaunchScreen: {}
@@ -44,7 +44,7 @@ targets:
           UIApplicationSupportsMultipleScenes: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.openbutt.ai
+        PRODUCT_BUNDLE_IDENTIFIER: com.openhole.ai
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: 1
         SWIFT_VERSION: "5.10"
@@ -54,10 +54,10 @@ targets:
       - package: Citadel
       - package: swift-markdown-ui
         product: MarkdownUI
-      - target: OpenButtTunnel
+      - target: OpenHoleTunnel
         embed: true
     entitlements:
-      path: OpenButt/Resources/OpenButt.entitlements
+      path: OpenHole/Resources/OpenHole.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.network.client: true
@@ -65,19 +65,19 @@ targets:
         com.apple.developer.networking.networkextension:
           - packet-tunnel-provider
         com.apple.security.application-groups:
-          - group.com.openbutt.ai
+          - group.com.openhole.ai
 
-  OpenButtTunnel:
+  OpenHoleTunnel:
     type: app-extension
     platform: iOS
     sources:
-      - OpenButtTunnel
+      - OpenHoleTunnel
     configFiles:
       Debug: Local.xcconfig
       Release: Local.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.openbutt.ai.tunnel
+        PRODUCT_BUNDLE_IDENTIFIER: com.openhole.ai.tunnel
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: 1
         SWIFT_VERSION: "5.10"
@@ -86,17 +86,17 @@ targets:
       - package: WireGuardKit
         product: WireGuardKit
     entitlements:
-      path: OpenButtTunnel/OpenButtTunnel.entitlements
+      path: OpenHoleTunnel/OpenHoleTunnel.entitlements
       properties:
         com.apple.developer.networking.networkextension:
           - packet-tunnel-provider
         com.apple.security.application-groups:
-          - group.com.openbutt.ai
+          - group.com.openhole.ai
     info:
-      path: OpenButtTunnel/Info.plist
+      path: OpenHoleTunnel/Info.plist
       properties:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.networkextension.packet-tunnel
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).PacketTunnelProvider
         CFBundlePackageType: "XPC!"
-        CFBundleDisplayName: OpenButtTunnel
+        CFBundleDisplayName: OpenHoleTunnel

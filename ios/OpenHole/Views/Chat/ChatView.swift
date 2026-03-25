@@ -5,7 +5,7 @@ struct ChatView: View {
     @EnvironmentObject var session: ClaudeSession
     @EnvironmentObject var connection: SSHConnectionManager
     @EnvironmentObject var settings: AppSettings
-    @ObservedObject private var intentService = ButtIntentService.shared
+    @ObservedObject private var intentService = HoleIntentService.shared
     @State private var inputText = ""
     @State private var showVoiceInput = false
     @State private var showSessionPicker = false
@@ -90,7 +90,7 @@ struct ChatView: View {
                     }
                 }
             }
-            .navigationTitle("OpenButt")
+            .navigationTitle("OpenHole")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

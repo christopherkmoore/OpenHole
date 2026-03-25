@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# OpenButt Credential Sync Setup
+# OpenHole Credential Sync Setup
 # Installs a launchd agent on macOS that syncs Claude Code OAuth credentials
 # from the local keychain to one or more remote servers every 2 hours.
 #
@@ -30,8 +30,8 @@ die()  { echo -e "${RED}[x]${NC} $*"; exit 1; }
 
 SYNC_SCRIPT="$HOME/.claude/sync-credentials.sh"
 TARGETS_FILE="$HOME/.claude/sync-targets.conf"
-PLIST_PATH="$HOME/Library/LaunchAgents/com.openbutt.sync-credentials.plist"
-LABEL="com.openbutt.sync-credentials"
+PLIST_PATH="$HOME/Library/LaunchAgents/com.openhole.sync-credentials.plist"
+LABEL="com.openhole.sync-credentials"
 INTERVAL=7200  # 2 hours
 
 # ─── Uninstall ────────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ fi
 
 # ─── Full setup ───────────────────────────────────────────────────────────────
 echo ""
-echo "  OpenButt Credential Sync"
+echo "  OpenHole Credential Sync"
 echo "  ────────────────────────"
 echo ""
 
@@ -140,7 +140,7 @@ elif [[ -f "$REPO_TARGETS" ]] && grep -v '^#' "$REPO_TARGETS" | grep -q .; then
     fi
 else
     cat > "$TARGETS_FILE" <<EOF
-# OpenButt credential sync targets
+# OpenHole credential sync targets
 # Format: user@host:ssh_key_path
 # One target per line. Lines starting with # are ignored.
 

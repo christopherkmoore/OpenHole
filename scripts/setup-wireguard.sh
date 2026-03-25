@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# OpenButt WireGuard Peer Config Generator
+# OpenHole WireGuard Peer Config Generator
 # Generates a WireGuard configuration for the iOS peer and provides
 # instructions for adding the peer to the server's WireGuard interface.
 
@@ -35,7 +35,7 @@ fi
 # ---------------------------------------------------------------------------
 # Config directory
 # ---------------------------------------------------------------------------
-CONFIG_DIR="$HOME/.openbutt"
+CONFIG_DIR="$HOME/.openhole"
 WG_DIR="$CONFIG_DIR/wireguard"
 mkdir -p "$WG_DIR"
 chmod 700 "$WG_DIR"
@@ -197,7 +197,7 @@ IPHONE_IP_ONLY=$(echo "$IPHONE_ADDRESS" | cut -d/ -f1)
 
 printf "${YELLOW}"
 cat <<EOF
-# OpenButt iPhone peer
+# OpenHole iPhone peer
 [Peer]
 PublicKey = ${IPHONE_PUBLIC_KEY}
 AllowedIPs = ${IPHONE_IP_ONLY}/32

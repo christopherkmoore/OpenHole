@@ -237,11 +237,11 @@ function sendFrame(socket, text) {
 ```
 
 ## Files Changed So Far
-- `ios/OpenButt/Claude/ClaudeSession.swift` — denial suppression, answerQuestion, isAwaitingQuestion
-- `ios/OpenButt/Views/Chat/ToolCallCard.swift` — QuestionCard struct
-- `ios/OpenButt/Views/Chat/MessageBubble.swift` — routes to QuestionCard
-- `ios/OpenButt/Views/Chat/ChatView.swift` — "Waiting for your answer..." status bar text
-- `ios/OpenButt/Views/Chat/InputBar.swift` — keyboard dismiss on send
+- `ios/OpenHole/Claude/ClaudeSession.swift` — denial suppression, answerQuestion, isAwaitingQuestion
+- `ios/OpenHole/Views/Chat/ToolCallCard.swift` — QuestionCard struct
+- `ios/OpenHole/Views/Chat/MessageBubble.swift` — routes to QuestionCard
+- `ios/OpenHole/Views/Chat/ChatView.swift` — "Waiting for your answer..." status bar text
+- `ios/OpenHole/Views/Chat/InputBar.swift` — keyboard dismiss on send
 
 ## References
 - Claude Code source: `/opt/homebrew/lib/node_modules/@anthropic-ai/claude-code/cli.js`

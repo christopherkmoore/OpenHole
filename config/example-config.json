@@ -1,6 +1,6 @@
 {
   // OpenHole Configuration File
-  // Copy this to ~/.openbutt/config.json and fill in your values.
+  // Copy this to ~/.openhole/config.json and fill in your values.
   // Run scripts/setup-server.sh to generate this automatically.
 
   "server": {
@@ -14,7 +14,7 @@
     "user": "yourusername",
 
     // Path to the SSH public key authorized for the iOS app
-    "ssh_public_key": "/home/yourusername/.openbutt/ios_ed25519.pub"
+    "ssh_public_key": "/home/yourusername/.openhole/ios_ed25519.pub"
   },
 
   "apns": {
@@ -22,7 +22,7 @@
     "enabled": false,
 
     // Path to the Apple .p8 signing key file
-    "key_path": "/home/yourusername/.openbutt/apns_key.p8",
+    "key_path": "/home/yourusername/.openhole/apns_key.p8",
 
     // Your Apple Developer Team ID (10-character string)
     "team_id": "ABCDE12345",
@@ -31,7 +31,7 @@
     "key_id": "FGHIJ67890",
 
     // Your app's bundle identifier
-    "bundle_id": "com.example.openbutt"
+    "bundle_id": "com.example.openhole"
   },
 
   "claude": {

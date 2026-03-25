@@ -4,13 +4,13 @@ import os
 final class AppLogger: @unchecked Sendable {
     static let shared = AppLogger()
 
-    private let osLog = os.Logger(subsystem: "com.openbutt.ai", category: "general")
+    private let osLog = os.Logger(subsystem: "com.openhole.ai", category: "general")
     private let fileURL: URL
-    private let queue = DispatchQueue(label: "com.openbutt.ai.logger")
+    private let queue = DispatchQueue(label: "com.openhole.ai.logger")
 
     private init() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        fileURL = docs.appendingPathComponent("openbutt.log")
+        fileURL = docs.appendingPathComponent("openhole.log")
 
         // Trim log if over 500KB
         if let attrs = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
@@ -62,4 +62,4 @@ final class AppLogger: @unchecked Sendable {
     var logFileURL: URL { fileURL }
 }
 
-let buttLog = AppLogger.shared
+let holeLog = AppLogger.shared

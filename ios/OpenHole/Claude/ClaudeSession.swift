@@ -55,23 +55,18 @@ class ClaudeSession: ObservableObject {
     func startSession(settings: AppSettings) async {
         self.settings = settings
         guard let ssh = sshManager, ssh.state == .connected else {
-            buttLog.error("[session] startSession: SSH not connected")
+            holeLog.error("[session] startSession: SSH not connected")
             state = .error("SSH not connected")
             return
         }
 
-        guard !settings.claudeToken.isEmpty else {
-            state = .error("No Claude setup token configured. Add one in Settings.")
-            return
-        }
-
         if let savedId = settings.activeSessionId {
-            buttLog.info("[session] startSession: resuming saved session \(savedId)")
+            holeLog.info("[session] startSession: resuming saved session \(savedId)")
             await resumeExistingSession(id: savedId, settings: settings)
             return
         }
 
-        buttLog.info("[session] startSession: creating new session")
+        holeLog.info("[session] startSession: creating new session")
         await createNewSession(settings: settings)
     }
 
@@ -91,18 +86,18 @@ class ClaudeSession: ObservableObject {
         settings.approvedTools.remove("AskUserQuestion")
 
         let command = buildCommand(settings: settings)
-        buttLog.info("[session] createNewSession command: \(command)")
+        holeLog.info("[session] createNewSession command: \(command)")
 
         do {
             let proc = setupProcess(ssh: ssh)
             process = proc
             try await proc.start(command: command, workingDirectory: settings.workingDirectory, environment: buildEnvironment(settings: settings))
-            buttLog.info("[session] createNewSession: process started, beginning polling")
+            holeLog.info("[session] createNewSession: process started, beginning polling")
             proc.startPolling()
             state = .ready
-            buttLog.info("[session] createNewSession: state → ready")
+            holeLog.info("[session] createNewSession: state → ready")
         } catch {
-            buttLog.error("[session] createNewSession failed: \(error)")
+            holeLog.error("[session] createNewSession failed: \(error)")
             state = .error(error.localizedDescription)
         }
     }
@@ -122,19 +117,19 @@ class ClaudeSession: ObservableObject {
         await loadSessionHistory(id: id)
 
         let command = buildCommand(settings: settings) + " --resume \(id)"
-        buttLog.info("[session] resumeExistingSession command: \(command)")
+        holeLog.info("[session] resumeExistingSession command: \(command)")
 
         do {
             let proc = setupProcess(ssh: ssh)
             process = proc
             try await proc.start(command: command, workingDirectory: settings.workingDirectory, environment: buildEnvironment(settings: settings))
-            buttLog.info("[session] resumeExistingSession: process started, beginning polling")
+            holeLog.info("[session] resumeExistingSession: process started, beginning polling")
             proc.startPolling()
             settings.activeSessionId = id
             state = .ready
-            buttLog.info("[session] resumeExistingSession: state → ready, \(messages.count) history messages")
+            holeLog.info("[session] resumeExistingSession: state → ready, \(messages.count) history messages")
         } catch {
-            buttLog.error("[session] resumeExistingSession failed: \(error)")
+            holeLog.error("[session] resumeExistingSession failed: \(error)")
             state = .error(error.localizedDescription)
         }
     }
@@ -143,13 +138,13 @@ class ClaudeSession: ObservableObject {
 
     func sendMessage(_ text: String) async {
         guard state == .ready else {
-            buttLog.info("[session] sendMessage: blocked — state=\(state)")
+            holeLog.info("[session] sendMessage: blocked — state=\(state)")
             return
         }
 
         // Re-launch process if it was terminated (e.g. after interrupt)
         if process == nil, let sid = sessionId, let ssh = sshManager, let s = settings {
-            buttLog.info("[session] sendMessage: re-launching process with --resume \(sid)")
+            holeLog.info("[session] sendMessage: re-launching process with --resume \(sid)")
             let command = buildCommand(settings: s) + " --resume \(sid)"
             do {
                 let proc = setupProcess(ssh: ssh)
@@ -157,14 +152,14 @@ class ClaudeSession: ObservableObject {
                 try await proc.start(command: command, workingDirectory: s.workingDirectory, environment: buildEnvironment(settings: s))
                 proc.startPolling()
             } catch {
-                buttLog.error("[session] sendMessage: failed to re-launch process: \(error)")
+                holeLog.error("[session] sendMessage: failed to re-launch process: \(error)")
                 state = .error(error.localizedDescription)
                 return
             }
         }
 
         guard let process else {
-            buttLog.info("[session] sendMessage: blocked — no process")
+            holeLog.info("[session] sendMessage: blocked — no process")
             return
         }
 
@@ -176,7 +171,7 @@ class ClaudeSession: ObservableObject {
         beginStreaming()
 
         let sid = sessionId ?? "new"
-        buttLog.info("[session] sendMessage: text=\(String(text.prefix(80))), sessionId=\(sid)")
+        holeLog.info("[session] sendMessage: text=\(String(text.prefix(80))), sessionId=\(sid)")
 
         let input = ClaudeInputMessage(
             message: InputPayload(content: text),
@@ -185,18 +180,18 @@ class ClaudeSession: ObservableObject {
 
         guard let data = try? JSONEncoder().encode(input),
               let json = String(data: data, encoding: .utf8) else {
-            buttLog.error("[session] sendMessage: failed to encode JSON")
+            holeLog.error("[session] sendMessage: failed to encode JSON")
             state = .error("Failed to encode message")
             return
         }
 
-        buttLog.debug("[session] sendMessage JSON: \(String(json.prefix(200)))")
+        holeLog.debug("[session] sendMessage JSON: \(String(json.prefix(200)))")
 
         do {
             try await process.sendMessage(json)
-            buttLog.info("[session] sendMessage: written to process input file")
+            holeLog.info("[session] sendMessage: written to process input file")
         } catch {
-            buttLog.error("[session] sendMessage failed: \(error)")
+            holeLog.error("[session] sendMessage failed: \(error)")
             state = .error(error.localizedDescription)
         }
     }
@@ -326,7 +321,7 @@ class ClaudeSession: ObservableObject {
         currentStreamText = ""
         endStreaming()
         state = .ready
-        buttLog.info("[session] interrupt: process terminated, state → ready (sessionId preserved)")
+        holeLog.info("[session] interrupt: process terminated, state → ready (sessionId preserved)")
     }
 
     func clearActiveSession(settings: AppSettings) {
@@ -379,18 +374,7 @@ class ClaudeSession: ObservableObject {
     }
 
     private func buildEnvironment(settings: AppSettings) -> [String: String] {
-        var env: [String: String] = [:]
-        if !settings.claudeToken.isEmpty {
-            env["CLAUDE_CODE_OAUTH_TOKEN"] = settings.claudeToken
-        }
-        return env
-    }
-
-    private func isAuthError(_ message: String) -> Bool {
-        let lower = message.lowercased()
-        return lower.contains("401") || lower.contains("oauth token") ||
-               lower.contains("expired") || lower.contains("unauthorized") ||
-               lower.contains("invalid bearer token")
+        return [:]
     }
 
     private func shellEscape(_ s: String) -> String {
@@ -428,11 +412,11 @@ class ClaudeSession: ObservableObject {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
             guard !filePath.isEmpty else {
-                buttLog.info("[history] no history file found for session \(id)")
+                holeLog.info("[history] no history file found for session \(id)")
                 return
             }
 
-            buttLog.info("[history] loading from: \(filePath)")
+            holeLog.info("[history] loading from: \(filePath)")
             let output = try await ssh.executeCommand("cat '\(filePath)'")
             let lines = output.components(separatedBy: "\n")
 
@@ -548,19 +532,19 @@ class ClaudeSession: ObservableObject {
             }
 
             messages = history
-            buttLog.info("Loaded \(history.count) messages from history")
+            holeLog.info("Loaded \(history.count) messages from history")
         } catch {
-            buttLog.error("Failed to load session history: \(error)")
+            holeLog.error("Failed to load session history: \(error)")
         }
     }
 
     // MARK: - Event Handling
 
     private func handleLine(_ line: String) {
-        buttLog.debug("[poll] raw line (\(line.count) chars): \(String(line.prefix(300)))")
+        holeLog.debug("[poll] raw line (\(line.count) chars): \(String(line.prefix(300)))")
 
         guard let event = parser.parseLine(line) else {
-            buttLog.info("[poll] failed to parse line")
+            holeLog.info("[poll] failed to parse line")
             return
         }
 
@@ -571,14 +555,14 @@ class ClaudeSession: ObservableObject {
             // A second system event within a turn indicates context compaction
             if hasSeenSystemEventThisTurn {
                 isCompacting = true
-                buttLog.info("[event] system: mid-turn system event — likely context compaction")
+                holeLog.info("[event] system: mid-turn system event — likely context compaction")
             }
             hasSeenSystemEventThisTurn = true
             sessionId = sys.sessionId
             availableTools = sys.tools
             model = sys.model
             settings?.activeSessionId = sys.sessionId
-            buttLog.info("[event] system: session=\(sys.sessionId), model=\(sys.model), tools=\(sys.tools.count), permissionMode=\(sys.permissionMode)")
+            holeLog.info("[event] system: session=\(sys.sessionId), model=\(sys.model), tools=\(sys.tools.count), permissionMode=\(sys.permissionMode)")
 
         case .assistant(let asst):
             // Accumulate token usage
@@ -614,7 +598,7 @@ class ClaudeSession: ObservableObject {
                     toolCalls: toolCalls
                 )
                 messages.append(msg)
-                buttLog.info("[event] assistant: \(String(msg.text.prefix(100)))")
+                holeLog.info("[event] assistant: \(String(msg.text.prefix(100)))")
             } else if !toolCalls.isEmpty {
                 let msg = ChatMessage(
                     role: .assistant,
@@ -622,7 +606,7 @@ class ClaudeSession: ObservableObject {
                     toolCalls: toolCalls
                 )
                 messages.append(msg)
-                buttLog.info("[event] tool calls: \(toolCalls.map { $0.name })")
+                holeLog.info("[event] tool calls: \(toolCalls.map { $0.name })")
             }
 
             currentStreamText = ""
@@ -654,17 +638,8 @@ class ClaudeSession: ObservableObject {
             if res.isError {
                 let errorText = res.result ?? res.errors?.joined(separator: "; ") ?? ""
 
-                if isAuthError(errorText) {
-                    buttLog.error("[session] auth error — setup token may be invalid or expired")
-                    let p = process
-                    process = nil
-                    Task { await p?.terminate() }
-                    state = .error("Authentication failed. Your setup token may be expired. Generate a new one with 'claude setup-token' on the server.")
-                    return
-                }
-
                 if errorText.contains("No conversation found") {
-                    buttLog.info("[session] stale session ID, starting fresh")
+                    holeLog.info("[session] stale session ID, starting fresh")
                     let p = process
                     process = nil
                     Task {
@@ -713,7 +688,7 @@ class ClaudeSession: ObservableObject {
                 }
             }
             state = .ready
-            buttLog.info("[event] result: cost=$\(res.totalCostUsd), duration=\(res.durationMs)ms, denials=\(res.permissionDenials?.count ?? 0)")
+            holeLog.info("[event] result: cost=$\(res.totalCostUsd), duration=\(res.durationMs)ms, denials=\(res.permissionDenials?.count ?? 0)")
         }
     }
 }

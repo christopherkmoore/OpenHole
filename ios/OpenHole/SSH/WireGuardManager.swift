@@ -10,9 +10,9 @@ class WireGuardManager: ObservableObject {
     private var manager: NETunnelProviderManager?
     private var statusObserver: Any?
 
-    static let configKeychainKey = "com.openbutt.ai.wireguard.peerConfig"
-    static let appGroup = "group.com.openbutt.ai"
-    static let tunnelBundleID = "com.openbutt.ai.tunnel"
+    static let configKeychainKey = "com.openhole.ai.wireguard.peerConfig"
+    static let appGroup = "group.com.openhole.ai"
+    static let tunnelBundleID = "com.openhole.ai.tunnel"
 
     init() {
         Task { await loadManager() }
@@ -29,11 +29,11 @@ class WireGuardManager: ObservableObject {
         // Build the VPN configuration
         let proto = NETunnelProviderProtocol()
         proto.providerBundleIdentifier = Self.tunnelBundleID
-        proto.serverAddress = "OpenButt WireGuard"
+        proto.serverAddress = "OpenHole WireGuard"
         proto.providerConfiguration = [:]
 
         let mgr = manager ?? NETunnelProviderManager()
-        mgr.localizedDescription = "OpenButt"
+        mgr.localizedDescription = "OpenHole"
         mgr.protocolConfiguration = proto
         mgr.isEnabled = true
 
@@ -41,7 +41,7 @@ class WireGuardManager: ObservableObject {
         try await mgr.loadFromPreferences()
         manager = mgr
         observeStatus()
-        buttLog.info("[wg] configured VPN manager")
+        holeLog.info("[wg] configured VPN manager")
     }
 
     // MARK: - Connect / Disconnect
@@ -49,12 +49,12 @@ class WireGuardManager: ObservableObject {
     func connect() async throws {
         guard let manager else { throw WireGuardError.notConfigured }
         try manager.connection.startVPNTunnel()
-        buttLog.info("[wg] startVPNTunnel called")
+        holeLog.info("[wg] startVPNTunnel called")
     }
 
     func disconnect() async {
         manager?.connection.stopVPNTunnel()
-        buttLog.info("[wg] stopVPNTunnel called")
+        holeLog.info("[wg] stopVPNTunnel called")
     }
 
     /// Ensure the tunnel is connected, waiting up to `timeout` seconds.
@@ -110,7 +110,7 @@ class WireGuardManager: ObservableObject {
             }
             hasConfig = loadConfigFromKeychain() != nil
         } catch {
-            buttLog.error("[wg] loadAllFromPreferences failed: \(error)")
+            holeLog.error("[wg] loadAllFromPreferences failed: \(error)")
         }
     }
 
@@ -125,7 +125,7 @@ class WireGuardManager: ObservableObject {
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.status = self?.manager?.connection.status ?? .disconnected
-                buttLog.info("[wg] status → \(self?.status.rawValue ?? -1)")
+                holeLog.info("[wg] status → \(self?.status.rawValue ?? -1)")
             }
         }
     }

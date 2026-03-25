@@ -84,7 +84,7 @@ class SessionListLoader: ObservableObject {
                 try await ssh.executeCommand("rm -f '\(path)'")
             }
         } catch {
-            buttLog.error("[sessions] delete failed: \(error)")
+            holeLog.error("[sessions] delete failed: \(error)")
         }
 
         sessions.removeAll { $0.id == id }

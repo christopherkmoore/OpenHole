@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenButt</string>
+	<string>OpenHole</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -27,11 +27,11 @@
 		<string>_ssh._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>OpenButt connects to your server over the local network via SSH.</string>
+	<string>OpenHole connects to your server over the local network via SSH.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>OpenButt uses the microphone for voice input to send prompts to Claude.</string>
+	<string>OpenHole uses the microphone for voice input to send prompts to Claude.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>OpenButt uses speech recognition to transcribe voice input into text prompts.</string>
+	<string>OpenHole uses speech recognition to transcribe voice input into text prompts.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

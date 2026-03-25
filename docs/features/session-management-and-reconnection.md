@@ -12,7 +12,7 @@ Sessions are stored server-side at `~/.claude/projects/<project-dir>/<uuid>.json
 
 ### 1. Session List Model
 
-**New file:** `OpenButt/Claude/SessionInfo.swift`
+**New file:** `OpenHole/Claude/SessionInfo.swift`
 
 ```swift
 struct SessionInfo: Identifiable {
@@ -39,7 +39,7 @@ Parse output into `[SessionInfo]`, sorted by `lastTimestamp` descending.
 
 ### 2. Session Picker View
 
-**New file:** `OpenButt/Views/Chat/SessionPickerView.swift`
+**New file:** `OpenHole/Views/Chat/SessionPickerView.swift`
 
 - Presented as a sheet from the Chat toolbar (replace current "New Session" menu item)
 - List of sessions showing: first message (truncated), timestamp, message count
@@ -49,7 +49,7 @@ Parse output into `[SessionInfo]`, sorted by `lastTimestamp` descending.
 
 ### 3. Resume with History
 
-**Modify:** `OpenButt/Claude/ClaudeSession.swift`
+**Modify:** `OpenHole/Claude/ClaudeSession.swift`
 
 Add `resumeExistingSession(id:settings:)` that:
 1. Sets `sessionId = id`
@@ -62,7 +62,7 @@ Add `loadSessionHistory(id:)` that reads the JSONL, parses each line into a `Cla
 
 ### 4. Auto-Reconnect on Foreground
 
-**Modify:** `OpenButt/App/ContentView.swift`
+**Modify:** `OpenHole/App/ContentView.swift`
 
 Current behavior (already partially implemented):
 - `scenePhase` `.active` triggers `ensureConnected()` + `startSession()`
@@ -72,7 +72,7 @@ Change to:
 - Only start a new session if there's no saved session ID
 - `ensureConnected()` health check stays as-is
 
-**Modify:** `OpenButt/App/AppSettings.swift`
+**Modify:** `OpenHole/App/AppSettings.swift`
 
 Add `activeSessionId: String?` — persisted to keychain. Set when a session starts or is resumed. Cleared on explicit "New Session."
 
@@ -90,13 +90,13 @@ With the persistent process, reconnection is no longer free — the server-side 
 
 ### 6. Permission Mode Default
 
-**Modify:** `OpenButt/App/AppSettings.swift` (already done)
+**Modify:** `OpenHole/App/AppSettings.swift` (already done)
 
 Default `permissionMode` to `"plan"` since one-shot can't handle interactive approvals.
 
 ### 7. Thinking Block Fix
 
-**Modify:** `OpenButt/Claude/ClaudeModels.swift` (already done)
+**Modify:** `OpenHole/Claude/ClaudeModels.swift` (already done)
 
 `.ignored` case for `thinking`, `server_tool_use`, and other unknown block types.
 

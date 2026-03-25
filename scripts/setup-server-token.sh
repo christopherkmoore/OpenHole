@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "=== OpenButt: Setup Token Configuration ==="
+echo "=== OpenHole: Setup Token Configuration ==="
 echo ""
 echo "This script configures a Claude setup token on this server."
 echo ""
@@ -45,4 +45,4 @@ fi
 echo ""
 echo "Done! Token is configured on this server."
 echo ""
-echo "Next: Paste the same token into OpenButt Settings > Claude Code > Setup Token."
+echo "Next: Paste the same token into OpenHole Settings > Claude Code > Setup Token."

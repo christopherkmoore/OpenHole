@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# OpenButt WireGuard Setup Script
-# Runs on the server (Linux or macOS) to set up WireGuard for the OpenButt iOS app.
+# OpenHole WireGuard Setup Script
+# Runs on the server (Linux or macOS) to set up WireGuard for the OpenHole iOS app.
 #
 # Usage:
 #   bash setup.sh              # First run: full setup. Subsequent: add new peer.
@@ -25,14 +25,14 @@ WG_SERVER_IP="${WG_NET_PREFIX}.1"
 WG_SUBNET="${WG_NET_PREFIX}.0/24"
 WG_CONFIG_DIR="/etc/wireguard"
 WG_FWMARK="0x4f42"
-OPENBUTT_DIR="$HOME/.openbutt"
-PEERS_DIR="$OPENBUTT_DIR/peers"
+OPENHOLE_DIR="$HOME/.openhole"
+PEERS_DIR="$OPENHOLE_DIR/peers"
 DUCKDNS_SCRIPT="/usr/local/bin/duckdns-home.sh"
 
 PEER_NAME="${1:-}"
 
 echo ""
-echo "  OpenButt WireGuard Setup"
+echo "  OpenHole WireGuard Setup"
 echo "  ────────────────────────"
 echo ""
 
@@ -107,7 +107,7 @@ if [[ -z "$PUBLIC_IP" ]]; then
 fi
 ok "Public IP: $PUBLIC_IP"
 
-mkdir -p "$OPENBUTT_DIR" "$PEERS_DIR"
+mkdir -p "$OPENHOLE_DIR" "$PEERS_DIR"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Detect mode: ADD PEER (wg0 running) vs FULL SETUP (first run)
@@ -154,8 +154,8 @@ EOF
 
     # Determine endpoint (prefer DuckDNS hostname if configured)
     ENDPOINT="$PUBLIC_IP"
-    if [[ -f "$OPENBUTT_DIR/duckdns-domain" ]]; then
-        ENDPOINT="$(cat "$OPENBUTT_DIR/duckdns-domain")"
+    if [[ -f "$OPENHOLE_DIR/duckdns-domain" ]]; then
+        ENDPOINT="$(cat "$OPENHOLE_DIR/duckdns-domain")"
         info "Using DuckDNS endpoint: $ENDPOINT"
     fi
 
@@ -178,10 +178,10 @@ PersistentKeepalive = 25
 EOF
 
     # Also write as the "latest" peer.conf for the iOS app
-    cp "$PEER_CONF_PATH" "$OPENBUTT_DIR/peer.conf"
+    cp "$PEER_CONF_PATH" "$OPENHOLE_DIR/peer.conf"
 
     ok "Peer config: $PEER_CONF_PATH"
-    ok "Latest config: $OPENBUTT_DIR/peer.conf (fetched by iOS app)"
+    ok "Latest config: $OPENHOLE_DIR/peer.conf (fetched by iOS app)"
 
     echo ""
     echo "  ─── New peer config ───────────────────────────"
@@ -190,7 +190,7 @@ EOF
     echo "  ────────────────────────────────────────────────"
     echo ""
     ok "Done. Peer $CLIENT_IP added to wg0."
-    echo "  In OpenButt: Settings > Import config from server"
+    echo "  In OpenHole: Settings > Import config from server"
     echo ""
     exit 0
 fi
@@ -281,7 +281,7 @@ DUCKEOF
         ok "DuckDNS cron installed (every 5 min via $MAIN_IFACE)"
 
         # Save domain for future add-peer runs
-        echo "$DUCKDNS_DOMAIN" > "$OPENBUTT_DIR/duckdns-domain"
+        echo "$DUCKDNS_DOMAIN" > "$OPENHOLE_DIR/duckdns-domain"
     fi
 fi
 
@@ -302,9 +302,9 @@ AllowedIPs = $WG_SUBNET
 PersistentKeepalive = 25
 EOF
 
-cp "$PEER_CONF_PATH" "$OPENBUTT_DIR/peer.conf"
+cp "$PEER_CONF_PATH" "$OPENHOLE_DIR/peer.conf"
 ok "Peer config: $PEER_CONF_PATH"
-ok "Latest config: $OPENBUTT_DIR/peer.conf (fetched by iOS app)"
+ok "Latest config: $OPENHOLE_DIR/peer.conf (fetched by iOS app)"
 
 # ─── Open firewall ─────────────────────────────────────────────────────────────
 info "Opening firewall port $WG_PORT/udp..."
@@ -387,6 +387,6 @@ if [[ "$UPNP_SUCCESS" == "false" ]]; then
 fi
 
 echo "  To add another peer later:  bash setup.sh [name]"
-echo "  In OpenButt: Settings > Import config from server"
+echo "  In OpenHole: Settings > Import config from server"
 echo ""
 echo "  ─────────────────────────────────────────────────────"

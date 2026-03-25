@@ -36,7 +36,7 @@ class SSHConnectionManager: ObservableObject {
             let localTimeout: Duration = settings.remoteHost.isEmpty ? .seconds(15) : .seconds(4)
 
             if !settings.sshHost.isEmpty {
-                buttLog.info("[ssh] trying local \(settings.sshHost) (timeout \(localTimeout))")
+                holeLog.info("[ssh] trying local \(settings.sshHost) (timeout \(localTimeout))")
                 do {
                     let c = try await connectHost(host: settings.sshHost, port: settings.sshPort,
                                                    username: settings.sshUser, privateKey: privateKey,
@@ -44,10 +44,10 @@ class SSHConnectionManager: ObservableObject {
                     client = c
                     connectedHost = settings.sshHost
                     state = .connected
-                    buttLog.info("[ssh] connected via local host")
+                    holeLog.info("[ssh] connected via local host")
                     return
                 } catch {
-                    buttLog.error("[ssh] local host failed: \(error)")
+                    holeLog.error("[ssh] local host failed: \(error)")
                 }
             }
 
@@ -58,18 +58,18 @@ class SSHConnectionManager: ObservableObject {
 
             // Auto-start WireGuard tunnel if enabled and configured
             if settings.wireguardEnabled, let wg = wireGuard, wg.hasConfig {
-                buttLog.info("[ssh] starting WireGuard tunnel...")
+                holeLog.info("[ssh] starting WireGuard tunnel...")
                 try await wg.ensureConnected(timeout: .seconds(12))
-                buttLog.info("[ssh] WireGuard connected")
+                holeLog.info("[ssh] WireGuard connected")
             }
 
-            buttLog.info("[ssh] trying remote \(settings.remoteHost)")
+            holeLog.info("[ssh] trying remote \(settings.remoteHost)")
             client = try await connectHost(host: settings.remoteHost, port: settings.sshPort,
                                             username: settings.sshUser, privateKey: privateKey,
                                             timeout: .seconds(15))
             connectedHost = settings.remoteHost
             state = .connected
-            buttLog.info("[ssh] connected via WireGuard remote host")
+            holeLog.info("[ssh] connected via WireGuard remote host")
 
         } catch {
             state = .error(error.localizedDescription)
@@ -92,7 +92,7 @@ class SSHConnectionManager: ObservableObject {
             _ = try await client!.executeCommand("echo ok")
             if state != .connected { state = .connected }
         } catch {
-            buttLog.info("SSH health check failed, reconnecting...")
+            holeLog.info("SSH health check failed, reconnecting...")
             client = nil
             connectedHost = ""
             state = .disconnected
@@ -136,15 +136,15 @@ class SSHConnectionManager: ObservableObject {
         let keyPath = docsDir.appendingPathComponent(settings.sshKeyName)
         if FileManager.default.fileExists(atPath: keyPath.path) {
             let keyData = try String(contentsOf: keyPath, encoding: .utf8)
-            buttLog.info("[ssh] key loaded from file")
+            holeLog.info("[ssh] key loaded from file")
             return try Curve25519.Signing.PrivateKey(sshEd25519: keyData)
         }
         if let keyData = KeychainHelper.load(key: settings.privateKeyTag) {
             let keyString = String(data: keyData, encoding: .utf8) ?? ""
-            buttLog.info("[ssh] key loaded from keychain")
+            holeLog.info("[ssh] key loaded from keychain")
             return try Curve25519.Signing.PrivateKey(sshEd25519: keyString)
         }
-        buttLog.error("[ssh] no private key found")
+        holeLog.error("[ssh] no private key found")
         throw SSHError.noPrivateKey
     }
 }

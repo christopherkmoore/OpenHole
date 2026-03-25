@@ -1,4 +1,4 @@
-# OpenButt - Design Document
+# OpenHole - Design Document
 
 ## Overview
 
@@ -119,7 +119,7 @@ This replaces the earlier one-shot approach which couldn't handle interactive ap
 ### Push Notifications
 
 - iOS app registers for APNs on launch, gets device token
-- Device token sent to your server (written to `~/.openbutt/device_token`)
+- Device token sent to your server (written to `~/.openhole/device_token`)
 - your server runs a small Node.js or Python script when Claude finishes a long task
 - Uses .p8 key from Apple Developer portal to send directly to APNs
 - No intermediate server needed
@@ -136,16 +136,16 @@ This replaces the earlier one-shot approach which couldn't handle interactive ap
 
 An interactive setup script that:
 1. Checks prerequisites (node, claude, ssh)
-2. Creates `~/.openbutt/` config directory
+2. Creates `~/.openhole/` config directory
 3. Generates an SSH keypair for the iOS app (or accepts an existing pubkey)
 4. Adds the pubkey to `~/.ssh/authorized_keys`
 5. Optionally sets up WireGuard for remote access
 6. Optionally sets up APNs push notifications (prompts for .p8 key path, team ID, key ID)
-7. Writes `~/.openbutt/config.json` with all settings
+7. Writes `~/.openhole/config.json` with all settings
 8. Tests that `claude` CLI works
 
 ### Server-Side Components
-- `~/.openbutt/` - config directory
+- `~/.openhole/` - config directory
   - `config.json` - settings (host, port, allowed dirs, notification prefs)
   - `device_token` - iOS device token for push notifications (written by app)
   - `AuthKey.p8` - APNs key (optional, for push notifications)

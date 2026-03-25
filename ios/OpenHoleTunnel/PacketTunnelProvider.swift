@@ -5,7 +5,7 @@ import os.log
 class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private var adapter: WireGuardAdapter?
-    private let log = Logger(subsystem: "com.openbutt.ai.tunnel", category: "PacketTunnelProvider")
+    private let log = Logger(subsystem: "com.openhole.ai.tunnel", category: "PacketTunnelProvider")
 
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         log.info("startTunnel called")
@@ -18,7 +18,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         let tunnelConfiguration: TunnelConfiguration
         do {
-            tunnelConfiguration = try TunnelConfiguration(fromWgQuickConfig: configString, called: "OpenButt")
+            tunnelConfiguration = try TunnelConfiguration(fromWgQuickConfig: configString, called: "OpenHole")
         } catch {
             log.error("Failed to parse WireGuard config: \(error)")
             completionHandler(error)
@@ -57,8 +57,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private func loadConfigFromSharedKeychain() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: "com.openbutt.ai.wireguard.peerConfig",
-            kSecAttrAccessGroup as String: "group.com.openbutt.ai",
+            kSecAttrAccount as String: "com.openhole.ai.wireguard.peerConfig",
+            kSecAttrAccessGroup as String: "group.com.openhole.ai",
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
@@ -74,7 +74,7 @@ enum TunnelError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noConfig: return "No WireGuard configuration found. Import your server config in OpenButt settings."
+        case .noConfig: return "No WireGuard configuration found. Import your server config in OpenHole settings."
         }
     }
 }

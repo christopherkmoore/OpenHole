@@ -1,7 +1,7 @@
 # WireGuard Remote Access
 
 ## Goal
-Allow OpenButt to connect to the remote server from anywhere — not just the local network. A one-shot setup script runs on the server, sets up a WireGuard tunnel, and outputs a QR code the user scans into the iOS WireGuard app. After that the app works from any network.
+Allow OpenHole to connect to the remote server from anywhere — not just the local network. A one-shot setup script runs on the server, sets up a WireGuard tunnel, and outputs a QR code the user scans into the iOS WireGuard app. After that the app works from any network.
 
 ## Architecture
 
@@ -18,7 +18,7 @@ Claude Code (running on server)
 - Server is the always-on machine running Claude Code
 - WireGuard gives the server a stable virtual IP (10.8.0.1)
 - iPhone connects to WireGuard before SSHing — works on any network
-- SSH host in OpenButt settings = WireGuard internal IP (10.8.0.1)
+- SSH host in OpenHole settings = WireGuard internal IP (10.8.0.1)
 
 ## Components
 
@@ -37,9 +37,9 @@ Claude Code (running on server)
 
 ### 2. System WireGuard app on iPhone
 - User scans QR from setup script
-- No code in OpenButt needed — iOS system VPN handles the tunnel
+- No code in OpenHole needed — iOS system VPN handles the tunnel
 
-### 3. OpenButt app changes (small)
+### 3. OpenHole app changes (small)
 - Add `remoteHost: String` to `AppSettings` (the WireGuard internal IP, e.g. 10.8.0.1)
 - Add `localHost: String` to `AppSettings` (LAN IP for when on home network)
 - `SSHConnectionManager` does smart host selection:
@@ -84,12 +84,12 @@ upnpc -a $(hostname -I | awk '{print $1}') 51820 51820 UDP
 ### QR code output
 ```bash
 # Generate wg config for iPhone peer, pipe to qrencode
-qrencode -t ansiutf8 < /tmp/openbutt-peer.conf
+qrencode -t ansiutf8 < /tmp/openhole-peer.conf
 ```
 
 ## File Layout
 ```
-OpenButt/
+OpenHole/
   server/
     setup.sh         ← main setup script (runs on server)
     README.md        ← instructions
